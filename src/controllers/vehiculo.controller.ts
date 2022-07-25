@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
-import { IVehiculo, Vehiculo } from '../models/vehiculo.model';
+import  { IVehiculo, Vehiculo} from '../models/vehiculo.model';
 import { IResponse } from '../models/response.model';
+import {paginationParseParams} from '../configPage';
 
 
 export const createVehiculo = async (req: Request, res: Response)=> {           
@@ -29,11 +30,13 @@ export const deleteVehiculo = async (req: Request, res: Response) => {
  }
 
 export const listVehiculos = async (req: Request, res: Response) => {
-    const response = await new VehiculoController().list();         
+
+    const datosPagination:any= req.query;
+    const {paginationParse} = paginationParseParams(datosPagination);
+
+    const response = await new VehiculoController().list(paginationParse.limit, paginationParse.page);         
     return res.status(200).json(response);    
 }
-
-
 
 
 class VehiculoController {
@@ -126,8 +129,10 @@ class VehiculoController {
         });
     }
 
-    public async list() : Promise<IResponse> {
-        return Vehiculo.find({}).then(data => {
+    public async list(limit:number, page:number) : Promise<IResponse> {
+        console.log("Comprobando si me llega en la funcion list");
+        console.log(limit, page);
+        return Vehiculo.paginate({},{limit, page}).then(data => {
                 return {
                     message: "OK: All Vehiculos retrieve",
                     status: 200,

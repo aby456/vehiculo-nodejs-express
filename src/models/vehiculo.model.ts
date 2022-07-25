@@ -1,7 +1,7 @@
-import { Schema, model } from 'mongoose';
-
+import mongoose, {Schema, model } from 'mongoose';
+import mongoosePaginate from 'mongoose-paginate-v2';
 //Interface
-export interface IVehiculo {
+export interface IVehiculo{
     fechaFabricacion:       null | Date;
     marca:                  string;
     modelo:                 string;
@@ -10,7 +10,7 @@ export interface IVehiculo {
 } 
 
 //Schema
-const vehiculoSchema = new Schema<IVehiculo>({
+const vehiculoSchema = new Schema({
     fechaFabricacion : {type: Date},
     marca: {type: String},
     modelo: {type: String},
@@ -18,7 +18,9 @@ const vehiculoSchema = new Schema<IVehiculo>({
     precio: {type: Number}
 });
 
-//Model
-const Vehiculo = model<IVehiculo>('Vehiculo', vehiculoSchema);
+vehiculoSchema.plugin(mongoosePaginate);
 
-export {Vehiculo}
+//Model
+interface VehiculoDocument extends mongoose.Document, IVehiculo{}
+
+export const Vehiculo = model<VehiculoDocument, mongoose.PaginateModel<VehiculoDocument>>('Vehiculo', vehiculoSchema);
